@@ -19,7 +19,7 @@ public class FrmTablaDistribucion extends JFrame {
     JList lstMuestra;
     String[] opciones = new String[] { "Excelente", "Buena", "Regular", "Mala" };
     String[] encabezados = new String[] { "Variable", "Frecuencia Absoluta", "Frecuencia Acumulada", "Frecuencia Relativa", "Frecuencia Porcentual" };
-    DefaultTableModel tblTablaDistribucion;
+    JTable tblTablaDistribucion;
 
 
     public FrmTablaDistribucion() {
@@ -61,15 +61,21 @@ public class FrmTablaDistribucion extends JFrame {
 
         // Agregar la tabla
 
-        JTable tblTablaDistribucion = new JTable();
+        tblTablaDistribucion = new JTable();
         JScrollPane spTablaDistribucion = new JScrollPane(tblTablaDistribucion); // Todo objeto extensible necesita un scroll pane
         spTablaDistribucion.setBounds(10, 230, 500, 200);
         getContentPane().add(spTablaDistribucion);
 
         // Asignar los datos a la tabla
 
-        DefaultTableModel dtm = new DefaultTableModel(null, encabezados);
-        tblTablaDistribucion.setModel(dtm);
+        String[][] strTablaDistribucion = new String[opciones.length][5];
+        for(int i=0; i < opciones.length; i++) {
+            strTablaDistribucion[i][0] = opciones[i];
+
+        }
+
+        DefaultTableModel dtm = new DefaultTableModel(strTablaDistribucion, encabezados);
+        tblTablaDistribucion.setModel(dtm);; //Aqui mostarara los encabezados de la tabla
 
         // eventos de la GUI
         btnAgregar.addActionListener(new ActionListener() {
@@ -97,8 +103,8 @@ public class FrmTablaDistribucion extends JFrame {
 
     private void agregarDato() {
 
-            String respuesta = opciones[cmbRespuesta.getSelectedIndex()];
-            totalDatos++;
+            String respuesta = opciones[cmbRespuesta.getSelectedIndex()]; //Aqui pregunta por la opcion escogida del arreglo de opciones
+            totalDatos++; //Aloja el dato al arreglo
             muestra[totalDatos] = respuesta;
             mostrarMuestra();
 
@@ -129,5 +135,49 @@ public class FrmTablaDistribucion extends JFrame {
 
     private void calcularTablaDistribucion(){
 
+        double[][] tablaDistribucion = new double[opciones.length][4]; //indica un arreglo bidimensional donde señala que habra tantas filas como opciones
+
+        //
+
+        for(int i = 0; i<= totalDatos; i++){
+            int posicion =-1;
+            for(int j= 0; j < opciones.length; j++) {
+                if(muestra[i].equals(opciones[j])) {
+                    posicion = j;
+                    break;
+
+
+                }
+            }
+
+            tablaDistribucion[posicion][0]++;
+
+        }
+         //Calcular la frecuencia acumulada
+         tablaDistribucion[0][1] = tablaDistribucion[0][0];
+
+         for(int i = 1; i < opciones.length; i++) {
+
+            tablaDistribucion[i][1] = tablaDistribucion[i - 1][1] + tablaDistribucion[i][0];
+
+         }
+         
+        
+        String[][] strTablaDistribucion = new String[opciones.length][5];
+        for(int i=0; i < opciones.length; i++) {
+            tablaDistribucion[i][2] = tablaDistribucion[i][0] / tablaDistribucion[opciones.length - 1][1];
+            tablaDistribucion[i][3] = tablaDistribucion[i][2] * 100;
+
+                strTablaDistribucion[i][0] = opciones[i];
+                strTablaDistribucion[i][1] = String.valueOf(tablaDistribucion[i][0]);
+                strTablaDistribucion[i][2] = String.valueOf(tablaDistribucion[i][1]);
+                strTablaDistribucion[i][3] = String.valueOf(tablaDistribucion[i][2]);
+                strTablaDistribucion[i][4] = String.valueOf(tablaDistribucion[i][3]);
+        }
+        
+        DefaultTableModel dtm = new DefaultTableModel(strTablaDistribucion, encabezados);
+        tblTablaDistribucion.setModel(dtm);
     }
+
+    
 }
